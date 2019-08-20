@@ -162,10 +162,10 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
       train[,y] <- as.factor(train[,y])
       valid[,y] <- as.factor(valid[,y])
       test[,y] <- as.factor(test[,y])
-      metrics <- c("logloss","AUC","pr_auc","Gini","mean_per_class_error")
-      
       if(length(train[,y]) > 2){
         metrics <- c("logloss","mean_per_class_error","r2","RMSE","MSE")
+      } else {
+        metrics <- c("logloss","AUC","pr_auc","Gini","mean_per_class_error")
       }
     }
   
@@ -265,6 +265,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   out$models <- models
   
   saveRDS(out, paste0(output.path,"/lazy_automl_output.RDS"))
+  cat(paste0("lazy | Output generated to: ", output.path, " \n"))
   
   return(out)
 }
