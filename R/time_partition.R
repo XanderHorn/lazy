@@ -14,6 +14,11 @@
 #' @author
 #' Xander Horn
 time.partition <- function(data, time.feature, valid.sample.size = 0.3){
+  
+  if(class(data[, time.feature]) %in% c("character","factor")){
+    data[, time.feature] <- as.Date(data[, time.feature])
+  }
+  
   data <- data[order(data[,time.feature]), ]
   start <- nrow(data) - round(0.3*nrow(data))
   valid.id <- start:nrow(data)

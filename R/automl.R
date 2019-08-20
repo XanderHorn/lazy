@@ -36,12 +36,12 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
 
   library(caret)
   library(h2o)
-   #train = train
+   #train = iris
    #x = NULL
-   #y = "default"
+   #y = "Species"
    #valid = NULL
    #test = NULL
-   #id.feats = "uuid"
+   #id.feats = NULL
    #time.partition.feature = NULL
    #optimization.metric = "AUTO" #Regression: deviance, MSE, RMSE, MAE, RMSLE. Classification: logloss, AUC, lift_top_group, misclassification, mean_per_class_error
    #valid.split = 0.1
@@ -58,6 +58,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
    #cluster.memory = NULL
    #output.path = "/Users/xander.horn/Desktop/"
    #pipeline = NULL
+   #return.data = FALSE
 
   info <- list()
   
@@ -132,6 +133,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
     info$optimized.pipeline <- paste0(nrow(res$summary)," out of 1536 possible pipelines were explored and the best performing pipeline was selected to be used for further modelling. A total of ", pipeline.search.max.runtime.mins," minutes were used to explore various pipelines.") 
   } 
   
+  cat("lazy | Applying pipeline to data \n")
   pp <- pre.process(data = train, x = x, y = y, id.feats = c(id.feats,time.partition.feature), pipeline = pipeline, verbose = FALSE)
   train <- pp$data
   valid <- pre.process(data = valid, pipeline = pp$pipeline, mapping.list = pp$mapping.list, verbose = FALSE)
@@ -161,6 +163,10 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
       valid[,y] <- as.factor(valid[,y])
       test[,y] <- as.factor(test[,y])
       metrics <- c("logloss","AUC","pr_auc","Gini","mean_per_class_error")
+      
+      if(length(train[,y]) > 2){
+        metrics <- c("logloss","mean_per_class_error","r2","RMSE","MSE")
+      }
     }
   
     if(length(unique(train[,y])) > max.levels){
@@ -222,8 +228,8 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   
   for(i in 1:nrow(perf)){
     mod <- h2o.getModel(grep(as.character(perf[i, "model"]), model_ids, value = TRUE)[1])
-    t1 <- h2o.performance(model = mod, newdata = train)
-    t2 <- h2o.performance(model = mod, newdata = valid)
+    t1 <- h2o.performance(model = mod, train = TRUE)
+    t2 <- h2o.performance(model = mod, valid = TRUE)
     t3 <- h2o.performance(model = mod, newdata = test)
     
     perf[i, "train"] <- t1@metrics[[as.character(perf[i,"metric"])]]
