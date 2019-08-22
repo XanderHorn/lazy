@@ -34,15 +34,15 @@ date.features <- function(data, x, progress = TRUE){
   
   for(i in 1:length(x)){
     
-    temp[, paste0("lazy.year.", x[i])] <- year(temp[, x[i]])
-    temp[, paste0("lazy.quarter.", x[i])] <- quarter(temp[, x[i]])
-    temp[, paste0("lazy.month.", x[i])] <- month(temp[, x[i]])
-    temp[, paste0("lazy.week.", x[i])] <- week(temp[, x[i]])
-    temp[, paste0("lazy.day.", x[i])] <- day(temp[, x[i]])
-    temp[, paste0("lazy.weekday.", x[i])] <- wday(temp[, x[i]], week_start = 1)
-    temp[, paste0("lazy.hour.", x[i])] <- hour(temp[, x[i]])
-    temp[, paste0("lazy.minute.", x[i])] <- minute(temp[, x[i]])
-    temp[, paste0("lazy.second.", x[i])] <- second(temp[, x[i]])
+    temp[, paste0("lazy.year.", x[i])] <- lubridate::year(temp[, x[i]])
+    temp[, paste0("lazy.quarter.", x[i])] <- lubridate::quarter(temp[, x[i]])
+    temp[, paste0("lazy.month.", x[i])] <- lubridate::month(temp[, x[i]])
+    temp[, paste0("lazy.week.", x[i])] <- lubridate::week(temp[, x[i]])
+    temp[, paste0("lazy.day.", x[i])] <- lubridate::day(temp[, x[i]])
+    temp[, paste0("lazy.weekday.", x[i])] <- lubridate::wday(temp[, x[i]], week_start = 1)
+    temp[, paste0("lazy.hour.", x[i])] <- lubridate::hour(temp[, x[i]])
+    temp[, paste0("lazy.minute.", x[i])] <- lubridate::minute(temp[, x[i]])
+    temp[, paste0("lazy.second.", x[i])] <- lubridate::second(temp[, x[i]])
     
     if(progress == TRUE){
       setTxtProgressBar(pb, i)

@@ -36,12 +36,12 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
 
   library(caret)
   library(h2o)
-   #train = iris
+   #train = full
    #x = NULL
-   #y = "Species"
+   #y = "target"
    #valid = NULL
    #test = NULL
-   #id.feats = NULL
+   #id.feats = "id"
    #time.partition.feature = NULL
    #optimization.metric = "AUTO" #Regression: deviance, MSE, RMSE, MAE, RMSLE. Classification: logloss, AUC, lift_top_group, misclassification, mean_per_class_error
    #valid.split = 0.1
@@ -71,7 +71,11 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   set.seed(seed)
   options(scipen = 999)
   t.row <- nrow(train)
-  
+
+  exp <- describe(data = train, progress = F)
+  remove <- as.character(exp[which(exp$all.na == 1 | exp$constant == 1 | exp$duplicate == 1), "feature"])
+  remove <- setdiff(remove, c(id.feats, y, time.partition.feature))
+  train <- train[,setdiff(names(train), remove)]
   
   if(is.null(test)){
     if(is.null(time.partition.feature) == TRUE){
@@ -83,6 +87,8 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
       test <- train[ind$valid,]
       train <- train[ind$train,]
     }
+  } else {
+    test <- test[,setdiff(names(test), remove)]
   }
   
   if(is.null(valid)){
@@ -96,6 +102,8 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
       valid <- train[ind$valid,]
       train <- train[ind$train,]
     }
+  } else {
+    valid <- valid[,setdiff(names(valid), remove)]
   }
   
   if(is.null(time.partition.feature) == FALSE){
