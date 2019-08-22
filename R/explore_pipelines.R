@@ -56,7 +56,7 @@ explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluste
     if(progress == TRUE){
       cat("lazy | Reducing dimensionality \n")
     }
-    imp <- feature.importance(data = train[,setdiff(names(train), id.feats)],x = x, y = y, seed = seed, verbose = FALSE, cluster.shutdown = TRUE)
+    imp <- feature.importance(data = train[,setdiff(names(train), id.feats)],x = x, y = y, seed = seed, verbose = FALSE, cluster.shutdown = F)
     imp <- imp$importance.table
     num <- subset(imp, imp$feature.class == "numeric")
     cat <- subset(imp, imp$feature.class == "categorical")

@@ -44,7 +44,6 @@ eda <- function(data, x = NULL, y = NULL, sample.size = 0.5, theme = 1, numeric.
   
   if(is.null(pipeline) == TRUE){
     pl <- design.pipeline(pipeline.name = "Data Exploration",
-                          remove.data.leakage.feats = FALSE,
                           text.features = FALSE,
                           date.features = FALSE,
                           impute.mode = "encode",

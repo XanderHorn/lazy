@@ -46,8 +46,8 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
    #optimization.metric = "AUTO" #Regression: deviance, MSE, RMSE, MAE, RMSLE. Classification: logloss, AUC, lift_top_group, misclassification, mean_per_class_error
    #valid.split = 0.1
    #test.split = 0.3
-   #pipeline.search.max.runtime.mins = 5
-   #automl.search.max.runtime.mins = 10
+   #pipeline.search.max.runtime.mins = 1
+   #automl.search.max.runtime.mins = 2
    #balance.classes = FALSE
    #models = c("DRF","GLM","GBM","XGBoost","DeepLearning","StackedEnsemble")
    #cv.folds = 0
@@ -162,7 +162,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
       train[,y] <- as.factor(train[,y])
       valid[,y] <- as.factor(valid[,y])
       test[,y] <- as.factor(test[,y])
-      if(length(train[,y]) > 2){
+      if(length(unique(train[,y])) > 2){
         metrics <- c("logloss","mean_per_class_error","r2","RMSE","MSE")
       } else {
         metrics <- c("logloss","AUC","pr_auc","Gini","mean_per_class_error")
@@ -240,11 +240,9 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   if(is.null(output.path) == TRUE){
     output.path <- getwd()
   }
-  
-  dir.create(paste0(output.path,"/lazy_output"))
-  dir.create(paste0(output.path,"/lazy_output/model_objects"))
   output.path <- paste0(output.path,"lazy_output")
-  
+  dir.create(output.path)
+  dir.create(paste0(output.path,"/model_objects"))
   
   for(i in 1:length(model_ids)){
     models[[i]] <- h2o.getModel(grep(model_ids[i], model_ids, value = TRUE)[1])
