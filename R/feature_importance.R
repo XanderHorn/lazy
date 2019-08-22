@@ -51,8 +51,9 @@ feature.importance <- function(data, x = NULL, y, valid.split = 0.2, max.class.l
   quiet(h2o:::.h2o.garbageCollect())
   
   if(is.null(x) == TRUE){
-    x <- setdiff(names(data), y)
+    x <- names(data)
   }
+  x <- setdiff(names(data), y)
   
   if(nrow(data) >= 60000){
     data <-  data[caret::createDataPartition(data[,y], p = 0.1270024, list = F), ]
