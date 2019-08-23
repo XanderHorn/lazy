@@ -52,8 +52,11 @@ feature.importance <- function(data, x = NULL, y, valid.split = 0.2, max.class.l
   
   if(is.null(x) == TRUE){
     x <- names(data)
+    x <- setdiff(names(data), y)
+  } else {
+    x <- setdiff(x, y)
   }
-  x <- setdiff(names(data), y)
+  
   
   if(nrow(data) >= 60000){
     data <-  data[caret::createDataPartition(data[,y], p = 0.1270024, list = F), ]
