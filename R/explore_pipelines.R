@@ -31,6 +31,12 @@ explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluste
   library(caret)
   library(h2o)
   
+  quiet <- function(x) { 
+    sink(tempfile()) 
+    on.exit(sink()) 
+    invisible(force(x)) 
+  } 
+  
   if(missing(train)){
     stop("Provide training set to function")
   }
