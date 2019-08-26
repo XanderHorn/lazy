@@ -197,6 +197,10 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   quiet(h2o.removeAll())
   quiet(h2o:::.h2o.garbageCollect())
   
+  if(h2o::h2o.xgboost.available() == FALSE){
+    models <- setdiff(models, "XGBoost")
+  }
+  
   if(return.data == TRUE){
     out$data$train <- train
     out$data$valid <- valid
