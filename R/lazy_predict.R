@@ -1,3 +1,14 @@
+#' Preprocess and predict wrapper
+#' 
+#' Pre-processes data and predicts. Function to be used in scoring environment. For classification problems the result will contain both the predicted class and probabilities.
+#'
+#' @param data 
+#' @param model.object 
+#' @param pipeline 
+#' @param mapping.list 
+#' @return A data.frame object with predictions.
+#' @export
+#' @examples
 lazy.predict <- function(data, model.object, pipeline, mapping.list){
   
   quiet <- function(x) { 

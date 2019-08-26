@@ -127,37 +127,12 @@ feature.importance <- function(data, x = NULL, y, valid.split = 0.2, max.class.l
   lr.imp <- lr.imp[,c("variable","scaled_importance")]
   names(lr.imp) <- c("feature", "lasso.importance")
   
-  if(verbose == TRUE){
-    cat("lazy | Light gbm importance \n")
-    lgb <- suppressWarnings(h2o.xgboost(y = y, training_frame = train, validation_frame = valid,
-                       seed = seed, eta = 0.05, colsample_bylevel = 0.8, min_child_weight = 5,
-                       max_depth = 10, colsample_bytree = 0.8, reg_lambda = 1,
-                       stopping_rounds = 5, subsample = 0.6, ntrees = 165,
-                       tree_method = "hist", grow_policy = "lossguide"))
-  } else {
-    lgb <- suppressWarnings(quiet(h2o.xgboost(y = y, training_frame = train, validation_frame = valid,
-                       seed = seed, eta = 0.05, colsample_bylevel = 0.8, min_child_weight = 5,
-                       max_depth = 10, colsample_bytree = 0.8, reg_lambda = 1,
-                       stopping_rounds = 5, subsample = 0.6, ntrees = 165,
-                       tree_method = "hist", grow_policy = "lossguide")))
-  }
-  
-  
-  lgb.imp <- as.data.frame(h2o.varimp(lgb)) 
-  lgb.imp <- lgb.imp[,c("variable","scaled_importance")]
-  names(lgb.imp) <- c("feature", "lightgbm.importance")
-  
   imp <- merge(x = rf.imp,
                y = lr.imp,
                by.x = "feature",
                all.x = TRUE)
-  
-  imp <- merge(x = imp,
-               y = lgb.imp,
-               by.x = "feature",
-               all.x = TRUE)
-  
-  imp$mean.importance <- rowMeans(imp[,2:4], na.rm = T)
+
+  imp$mean.importance <- rowMeans(imp[,2:3], na.rm = T)
   imp <- imp[order(imp$mean.importance), ]
   imp$mean.importance <- imp$mean.importance / max(imp$mean.importance)
   imp$mean.importance <- ifelse(imp$mean.importance < 0, 0, imp$mean.importance)
@@ -190,7 +165,7 @@ feature.importance <- function(data, x = NULL, y, valid.split = 0.2, max.class.l
                 xlab = "Nr features", 
                 ylab = "Cumulative importance")
   
-  perf <- data.frame(expand.grid(model = c("randomforest","lasso","lightgbm"),
+  perf <- data.frame(expand.grid(model = c("randomforest","lasso"),
                                  metric = metric,
                                  train = NA,
                                  valid = NA))
@@ -199,8 +174,6 @@ feature.importance <- function(data, x = NULL, y, valid.split = 0.2, max.class.l
   perf[1, "valid"] <- rf@model$validation_metrics@metrics[[metric]]
   perf[2, "train"] <- lr@model$training_metrics@metrics[[metric]]
   perf[2, "valid"] <- lr@model$validation_metrics@metrics[[metric]]
-  perf[3, "train"] <- lgb@model$training_metrics@metrics[[metric]]
-  perf[3, "valid"] <- lgb@model$validation_metrics@metrics[[metric]]
   
   if(cluster.shutdown == TRUE){
     quiet(h2o.shutdown(prompt = F))

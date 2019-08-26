@@ -2,7 +2,7 @@
 #' 
 #' Machine learning pipelines consist of various methods for data cleaning and feature engineering.
 #' 
-#' Constructs a grid with all combinations of pipelines then randomly shuffles the grid and explores pipelines along the grid. The function will run until the max runtime in minutes threshold has been reached. Pipelines are evaluated using one or all of the following models, random forest, lasso regression and a light gbm. The mean performance is also calculated and returned. For binary classification problems, Gini is used to evaluatedpipelines. For multiclass classification, logloss is used to evaluate pipelines. For regression mse is used to evaluate pipelines. 
+#' Constructs a grid with all combinations of pipelines then randomly shuffles the grid and explores pipelines along the grid. The function will run until the max runtime in minutes threshold has been reached. Pipelines are evaluated using a random forest and a lasso GLM. The mean performance is also calculated and returned. For binary classification problems, Gini is used to evaluatedpipelines. For multiclass classification, logloss is used to evaluate pipelines. For regression mse is used to evaluate pipelines. 
 #' The training set is down sampled to a max of 40k observations along with the validation set for faster pipeline exploration.
 #' 
 #' @param train [required | data.frame] Traning set before any feature engineering or data cleaning is done.
@@ -12,7 +12,6 @@
 #' @param y [optional | character] The name of the target feature contained in the training and validation sets.
 #' @param cluster.memory [optional | integer | default=NULL] The maxmimum allocated memory in GB designated to the H2O cluster. 
 #' @param max.runtime.mins [optional | integer | default=10] The maximum run time in minutes for the function to identify the best possible pipelines. Recommended to increase for datasets with a large number of columns or multi-class problems.
-#' @param models [optional | character | default=c('randomforest','lasso','lightgbm')] The models used to identify the best possible pipeline. By default a random forest, lasso and light gbm model is trained on each pipeline and evaluated. Options are randomforest, lasso or lightgbm.
 #' @param max.levels [optional | numeric | default=100] The maximum number of unique values in the target feature before it is considered a regression problem.
 #' @param progress [optional | logical | default=TRUE] Display a progress bar.
 #' @param reduce.dimensionality [optional | logical | default=TRUE] Reduces dimensionality by computing feature importances for each feature and only keeping the top 10 numerical and categorical features. All other feature types are kept along with the top performing features. Used to speed up pipeline search. If the number of features in the dataset is greater than 80, dimensionality will be reduced, else the data is used as is.
@@ -25,8 +24,8 @@
 #' res <- explore.pipelines(train = iris, valid = iris, y = "Species")
 #' @author 
 #' Xander Horn
-explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluster.memory = NULL, max.runtime.mins = 10, reduce.dimensionality = TRUE,
-                              models = c("randomforest","lasso","lightgbm"), max.levels = 100, progress = TRUE, seed = 1){
+explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluster.memory = NULL, max.runtime.mins = 10, 
+                              reduce.dimensionality = TRUE, max.levels = 100, progress = TRUE, seed = 1){
 
   library(caret)
   library(h2o)
@@ -171,7 +170,6 @@ explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluste
   c$metric <- metric
   c$randomforest <- NA
   c$lasso <- NA
-  c$lightgbm <- NA
   
   if(is.null(cluster.memory) == FALSE){
     quiet(h2o::h2o.init(max_mem_size = paste0(cluster.memory,"G")))
@@ -228,15 +226,7 @@ explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluste
         lr <- quiet(h2o.glm(y = y, training_frame = tmp.train, validation_frame = tmp.valid, family = family, alpha = 1, seed = seed))
         c[i, "lasso"] <- h2o.performance(lr, newdata=tmp.valid)@metrics[metric]
       }
-      
-      if("lightgbm" %in% models){
-        lgb <- quiet(h2o.xgboost(y = y, training_frame = tmp.train, validation_frame = tmp.valid,
-                                 seed = seed, eta = 0.05, colsample_bylevel = 0.8, min_child_weight = 5,
-                                 max_depth = 10, colsample_bytree = 0.8, reg_lambda = 1,
-                                 stopping_rounds = 5, subsample = 0.6, ntrees = 165,
-                                 tree_method = "hist", grow_policy = "lossguide"))
-        c[i, "lightgbm"] <- h2o.performance(lgb, newdata=tmp.valid)@metrics[metric]
-      }
+
       quiet(h2o.removeAll())
       quiet(h2o:::.h2o.garbageCollect())
       
@@ -305,25 +295,6 @@ explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluste
                          ylab = paste0("Validation set performance: ", metric))
   } else {
     bst.lr <- NULL
-  }
-  
-  if("lightgbm" %in% models){
-    if(max == TRUE){
-      bst.lgb <- which.max(c$lightgbm)
-      y.lgbm <- c[order(c$lightgbm), ]$lightgbm
-    } else {
-      bst.lgb <- which.min(c$lightgbm)
-      y.lgbm <- c[order(c$lightgbm, decreasing = TRUE), ]$lightgbm
-    }
-    bst$boosting.pipeline <- pls[[which(names(pls) == c[bst.lgb, "name"])]]
-    plots$lightgbm <- qplot(x = seq(1,nrow(c)), 
-                            y = y.lgbm, 
-                            geom='line',
-                            main = "Light gbm pipeline evolution",
-                            xlab = "Nr pipelines", 
-                            ylab = paste0("Validation set performance: ", metric))
-  } else {
-    bst.lgb <- NULL
   }
   
   if(max == TRUE){
