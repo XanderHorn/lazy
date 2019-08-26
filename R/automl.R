@@ -36,10 +36,10 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
                    automl.search.max.runtime.mins = 30, balance.classes = FALSE, models = c("DRF","GLM","GBM","XGBoost","DeepLearning","StackedEnsemble"),
                    cv.folds = 0, max.levels = 100, data.leakage.cutoff = 0.65, cluster.memory = NULL, min.feature.importance = 0.1, seed = 1,
                    output.path = NULL, pipeline = NULL, return.data = FALSE){
-
+  
   library(caret)
   library(h2o)
-
+  
   info <- list()
   
   quiet <- function(x) { 
@@ -51,7 +51,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   set.seed(seed)
   options(scipen = 999)
   t.row <- nrow(train)
-
+  
   exp <- describe(data = train, progress = F)
   remove <- as.character(exp[which(exp$all.na == 1 | exp$constant == 1 | exp$duplicate == 1), "feature"])
   remove <- setdiff(remove, c(id.feats, y, time.partition.feature))
@@ -156,7 +156,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
         metrics <- c("logloss","AUC","pr_auc","Gini","mean_per_class_error")
       }
     }
-  
+    
     if(length(unique(train[,y])) > max.levels){
       train[,y] <- as.numeric(train[,y])
       valid[,y] <- as.numeric(valid[,y])
@@ -165,7 +165,12 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
     }
   }
   
-  x <- setdiff(names(train), c(id.feats, time.partition.feature, y))
+  x <- setdiff(names(train), c(id.feats, y, time.partition.feature))
+  imp <- feature.importance(data = train, y = y, x = x, verbose = F,cluster.shutdown = F)
+  fi <- imp$importance.table
+  x <- setdiff(as.character(fi[which(fi$mean.importance > min.feature.importance), "feature"]), c(id.feats,time.partition.feature,y))
+  
+  #x <- setdiff(names(train), c(id.feats, time.partition.feature, y))
   valid <- valid[,names(train)]
   test <- test[,names(train)]
   
@@ -244,14 +249,15 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   names(models) <- model_ids
   perf$train.valid.overfit.value <- abs(perf$train - perf$valid)
   
+  out$leaderboard <- perf
   out$partitions <- general.info
   out$modelling.development.info <- info
-  out$leaderboard <- perf
+  out$data.leak <- leak
+  out$feature.importance <- imp
   out$pipeline.search$summary <- res$summary
   out$pipeline.search$plots <- res$plots
   out$pipeline <- pp$pipeline
   out$mapping.list <- pp$mapping.list
-  out$data.leak <- leak
   out$models <- models
   
   saveRDS(out, paste0(output.path,"/lazy_automl_output.RDS"))
@@ -259,4 +265,3 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   
   return(out)
 }
-  

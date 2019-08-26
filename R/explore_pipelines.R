@@ -217,15 +217,11 @@ explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluste
       tmp.train <- quiet(as.h2o(tmp.train))
       tmp.valid <- quiet(as.h2o(tmp.valid))
       
-      if("randomforest" %in% models){
-        rf <- quiet(h2o.randomForest(y = y, training_frame = tmp.train, validation_frame = tmp.valid, ntrees = 100, seed = seed))
-        c[i, "randomforest"] <- h2o.performance(rf, newdata=tmp.valid)@metrics[metric]
-      }
+      rf <- quiet(h2o.randomForest(y = y, training_frame = tmp.train, validation_frame = tmp.valid, ntrees = 100, seed = seed))
+      c[i, "randomforest"] <- h2o.performance(rf, newdata=tmp.valid)@metrics[metric]
       
-      if("lasso" %in% models){
-        lr <- quiet(h2o.glm(y = y, training_frame = tmp.train, validation_frame = tmp.valid, family = family, alpha = 1, seed = seed))
-        c[i, "lasso"] <- h2o.performance(lr, newdata=tmp.valid)@metrics[metric]
-      }
+      lr <- quiet(h2o.glm(y = y, training_frame = tmp.train, validation_frame = tmp.valid, family = family, alpha = 1, seed = seed))
+      c[i, "lasso"] <- h2o.performance(lr, newdata=tmp.valid)@metrics[metric]
 
       quiet(h2o.removeAll())
       quiet(h2o:::.h2o.garbageCollect())
@@ -246,7 +242,7 @@ explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluste
   }
   
   c$mean.performance <- rowMeans(c[,(which(names(c) == "metric") + 1):ncol(c)])
-  c <- c[, c(names(c)[1:32], models, "mean.performance")]
+  c <- c[, c(names(c)[1:32], c("randomforest","lasso"), "mean.performance")]
   c$search.duration.mins <- max.runtime.mins
   
   if(nrow(subset(c, is.na(c$mean.performance) == TRUE)) == nrow(c)){
@@ -257,45 +253,37 @@ explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluste
   bst <- list()
   plots <- list()
   c <- subset(c, is.na(c$mean.performance) == FALSE)
-  if("randomforest" %in% models){
-    if(max == TRUE){
-      bst.rf <- which.max(c$randomforest)
-      y.rf <- c[order(c$randomforest), ]$randomforest
-    } else {
-      bst.rf <- which.min(c$randomforest)
-      y.rf<- c[order(c$randomforest, decreasing = TRUE), ]$randomforest
-    }
-    bst$tree.pipeline <- pls[[which(names(pls) == c[bst.rf, "name"])]]
-    
-    plots$randomforest <- qplot(x = seq(1,nrow(c)), 
-                                y = y.rf, 
-                                geom='line',
-                                main = "Random forest pipeline evolution",
-                                xlab = "Nr pipelines", 
-                                ylab = paste0("Validation set performance: ", metric))
+  if(max == TRUE){
+    bst.rf <- which.max(c$randomforest)
+    y.rf <- c[order(c$randomforest), ]$randomforest
   } else {
-    bst.rf <- NULL
+    bst.rf <- which.min(c$randomforest)
+    y.rf<- c[order(c$randomforest, decreasing = TRUE), ]$randomforest
   }
+  bst$tree.pipeline <- pls[[which(names(pls) == c[bst.rf, "name"])]]
   
-  if("lasso" %in% models){
-    if(max == TRUE){
-      bst.lr <- which.max(c$lasso)
-      y.lr <- c[order(c$lasso), ]$lasso
-    } else {
-      bst.lr <- which.min(c$lasso)
-      y.lr <- c[order(c$lasso, decreasing = TRUE), ]$lasso
-    }
-    bst$linear.pipeline <- pls[[which(names(pls) == c[bst.lr, "name"])]]
-    
-    plots$lasso <- qplot(x = seq(1,nrow(c)), 
-                         y = y.lr, 
-                         geom='line',
-                         main = "Lasso pipeline evolution",
-                         xlab = "Nr pipelines", 
-                         ylab = paste0("Validation set performance: ", metric))
+  plots$randomforest <- qplot(x = seq(1,nrow(c)), 
+                              y = y.rf, 
+                              geom='line',
+                              main = "Random forest pipeline evolution",
+                              xlab = "Nr pipelines", 
+                              ylab = paste0("Validation set performance: ", metric))
+  
+  if(max == TRUE){
+    bst.lr <- which.max(c$lasso)
+    y.lr <- c[order(c$lasso), ]$lasso
   } else {
-    bst.lr <- NULL
+    bst.lr <- which.min(c$lasso)
+    y.lr <- c[order(c$lasso, decreasing = TRUE), ]$lasso
   }
+  bst$linear.pipeline <- pls[[which(names(pls) == c[bst.lr, "name"])]]
+  
+  plots$lasso <- qplot(x = seq(1,nrow(c)), 
+                       y = y.lr, 
+                       geom='line',
+                       main = "Lasso pipeline evolution",
+                       xlab = "Nr pipelines", 
+                       ylab = paste0("Validation set performance: ", metric))
   
   if(max == TRUE){
     bst.mean <- which.max(c$mean.performance)
