@@ -30,7 +30,7 @@ apply.categorical.interaction.mappings <- function(data, categorical.interaction
   for(i in 1:length(categorical.interactions.mappings)){
     c <- categorical.interactions.mappings[[i]]
     for(j in 1:nrow(c)){
-      data[,paste0("lazy.interact.",paste0(c[j,], collapse = "."))] <- do.call(paste0, as.data.frame(data[,paste0(c[j,])], stringsAsFactors=FALSE))
+      data[,paste0("interact.",paste0(c[j,], collapse = "."))] <- do.call(paste0, as.data.frame(data[,paste0(c[j,])], stringsAsFactors=FALSE))
     }
     if(verbose == TRUE){
       setTxtProgressBar(pb, i)
