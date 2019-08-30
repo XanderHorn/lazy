@@ -6,8 +6,8 @@
 \usage{
 explore.pipelines(train, valid, id.feats = NULL, x = NULL, y,
   cluster.memory = NULL, max.runtime.mins = 10,
-  reduce.dimensionality = TRUE, models = c("randomforest", "lasso",
-  "lightgbm"), max.levels = 100, progress = TRUE, seed = 1)
+  reduce.dimensionality = TRUE, max.levels = 100, progress = TRUE,
+  seed = 1)
 }
 \arguments{
 \item{train}{[required | data.frame] Traning set before any feature engineering or data cleaning is done.}
@@ -26,8 +26,6 @@ explore.pipelines(train, valid, id.feats = NULL, x = NULL, y,
 
 \item{reduce.dimensionality}{[optional | logical | default=TRUE] Reduces dimensionality by computing feature importances for each feature and only keeping the top 10 numerical and categorical features. All other feature types are kept along with the top performing features. Used to speed up pipeline search. If the number of features in the dataset is greater than 80, dimensionality will be reduced, else the data is used as is.}
 
-\item{models}{[optional | character | default=c('randomforest','lasso','lightgbm')] The models used to identify the best possible pipeline. By default a random forest, lasso and light gbm model is trained on each pipeline and evaluated. Options are randomforest, lasso or lightgbm.}
-
 \item{max.levels}{[optional | numeric | default=100] The maximum number of unique values in the target feature before it is considered a regression problem.}
 
 \item{progress}{[optional | logical | default=TRUE] Display a progress bar.}
@@ -41,7 +39,7 @@ List containing best pipelines, summary frame and pipeline plots
 Machine learning pipelines consist of various methods for data cleaning and feature engineering.
 }
 \details{
-Constructs a grid with all combinations of pipelines then randomly shuffles the grid and explores pipelines along the grid. The function will run until the max runtime in minutes threshold has been reached. Pipelines are evaluated using one or all of the following models, random forest, lasso regression and a light gbm. The mean performance is also calculated and returned. For binary classification problems, Gini is used to evaluatedpipelines. For multiclass classification, logloss is used to evaluate pipelines. For regression mse is used to evaluate pipelines. 
+Constructs a grid with all combinations of pipelines then randomly shuffles the grid and explores pipelines along the grid. The function will run until the max runtime in minutes threshold has been reached. Pipelines are evaluated using a random forest and a lasso GLM. The mean performance is also calculated and returned. For binary classification problems, Gini is used to evaluatedpipelines. For multiclass classification, logloss is used to evaluate pipelines. For regression mse is used to evaluate pipelines. 
 The training set is down sampled to a max of 40k observations along with the validation set for faster pipeline exploration.
 }
 \examples{

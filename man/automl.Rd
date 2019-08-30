@@ -20,44 +20,55 @@ automl(train, y, valid = NULL, test = NULL, x = NULL,
 
 \item{y}{[optional | character] The name of the target feature contained in the training and validation sets.}
 
-\item{valid}{}
+\item{valid}{[optional | data.frame | default=NULL] Validation set used to optimize model hyper parameters and evaluate against.}
 
-\item{test}{}
+\item{test}{[optional | data.frame | default=NULL] Test set for model validation.}
 
-\item{x}{}
+\item{x}{[optional | character | default=NULL] A character vector of predictor features to use. If left NULL then all features in the dataset except for the id, target and time partitioning features will be used.}
 
-\item{id.feats}{}
+\item{id.feats}{[optional | character | default=NULL] The name or names of id features that will be used to de-duplicate the training set.}
 
-\item{time.partition.feature}{}
+\item{time.partition.feature}{[optional | character | default=NULL] The name of the time partitioning feature that will be used to create time sensitive train, validation and test sets.}
 
-\item{optimization.metric}{}
+\item{optimization.metric}{[optional | character | default="AUTO"] Which metric models should optimize when learning. Options include AUC, logloss, mean_per_class_error, RMSE, MSE, mean_residual_deviance, MAE, RMSLE. When set to AUTO will do AUC for binary classification, mean_per_class_error for multi-class and mean_residual_deviance for regression problems.}
 
-\item{valid.split}{}
+\item{valid.split}{[optional | numeric | default=0.1] The percentage of data to allocate to the validation set. If no time partitioning is done, then stratefied random sampling is done.}
 
-\item{test.split}{}
+\item{test.split}{[optional | numeric | default=0.2] The percentage of data to allocate to the test set. If no time partitioning is done, then stratefied random sampling is done.}
 
-\item{pipeline.search.max.runtime.mins}{}
+\item{pipeline.search.max.runtime.mins}{[optional | integer | default=30] The number of minutes allocated to optimized pre-processing pipelines.}
 
-\item{automl.search.max.runtime.mins}{}
+\item{automl.search.max.runtime.mins}{[optional | integer | default=30] The number of minutes allocated to train models on the optimized dataset. Uses h2o.automl.}
 
-\item{balance.classes}{}
+\item{balance.classes}{[optional | logical | default=FALSE] Should class imbalances be corrected by either up sampling minority cases or down sampling majority cases.}
 
-\item{models}{}
+\item{models}{[optional | character | default=c("DRF","GLM","GBM","XGBoost","DeepLearning","StackedEnsemble")] The models to fit when running h2o.automl. Note that for Windows operating systems xgboost is not available.}
 
-\item{cv.folds}{}
+\item{cv.folds}{[optional | integer | default=0] The number of folds to cross validate models on. Any value less than 3 will perform no cross validation.}
 
-\item{max.levels}{}
+\item{max.levels}{[optional | integer | default=100] The maximum number of unique values in the target feature before it is seen as a regression problem.}
 
-\item{data.leakage.cutoff}{}
+\item{data.leakage.cutoff}{[optional | numeric | default=0.65] The AUC cutoff value for determining which features are predictive in predicting the testing set. Features with a value greater than the cutoff will be removed from the feature set.}
 
-\item{cluster.memory}{}
+\item{cluster.memory}{[optional | integer | default=NULL] The maxmimum memory allocated to the h2o cluster in gigabytes. Default of NULL which will auto assign memory.}
 
-\item{min.feature.importance}{}
+\item{min.feature.importance}{[optional | numeric | default=0.1] The minimum scaled feature importance features need to have before they are removed from the feature space.}
 
-\item{seed}{}
+\item{seed}{[optional | integer | default=NULL] Random seed value for reproducable results.}
 
-\item{output.path}{}
+\item{output.path}{[optional | character | default=NULL] Path where function output will save to. Default of NULL, which will save to the current working directory.}
+}
+\value{
+List of objects and output generated to a specific path
 }
 \description{
 Automated machine learning with automated feature engineering via pipeline exploration optimization. Utilises h2o.automl as the modelling engine. Duplicate observations are removed based on id features provided to the function. Time sensitive partitioning is also performed if a time sensitive indicator feature is provided. The function is bound by time for both optimization of pipelines as well as model optimization.
+Due to the function using the h2o library, the top 15 models are saved locally in order to load the models into the cluster at a later stage and perform scoring.
+}
+\examples{
+## NOT RUN
+res <- automl(train=iris, valid=iris, y="Species")
+}
+\author{
+Xander Horn
 }

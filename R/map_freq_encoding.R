@@ -24,7 +24,13 @@ map.freq.encoding <- function(data, x = NULL, progress = TRUE){
   }
 
   data <- as.data.frame(data)
-  data <- data[,x]
+  if(length(x) == 1){
+    data <- as.data.frame(data[,x])
+    names(data) <- x
+  } else {
+    data <- data[,x]
+  }
+  
 
   if(progress == TRUE){
     pb <- txtProgressBar(min = 0, max = length(x), style = 3)
