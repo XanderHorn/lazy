@@ -236,7 +236,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   if(is.null(output.path) == TRUE){
     output.path <- getwd()
   }
-  output.path <- paste0(output.path,"lazy_output")
+  output.path <- paste0(output.path,"/lazy_output")
   dir.create(output.path)
   dir.create(paste0(output.path,"/model_objects"))
   
