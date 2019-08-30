@@ -169,8 +169,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   imp <- feature.importance(data = train, y = y, x = x, verbose = F,cluster.shutdown = F)
   fi <- imp$importance.table
   x <- setdiff(as.character(fi[which(fi$mean.importance > min.feature.importance), "feature"]), c(id.feats,time.partition.feature,y))
-  
-  #x <- setdiff(names(train), c(id.feats, time.partition.feature, y))
+
   valid <- valid[,names(train)]
   test <- test[,names(train)]
   
