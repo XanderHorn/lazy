@@ -16,6 +16,7 @@
 #' @param progress [optional | logical | default=TRUE] Display a progress bar.
 #' @param reduce.dimensionality [optional | logical | default=TRUE] Reduces dimensionality by computing feature importances for each feature and only keeping the top 10 numerical and categorical features. All other feature types are kept along with the top performing features. Used to speed up pipeline search. If the number of features in the dataset is greater than 80, dimensionality will be reduced, else the data is used as is.
 #' @param seed [optional | integer | default=1] Random number seed for reproducable results.
+#' @param cluster.shutdown [optional | integer | default=TRUE] Shutdown h2o cluster after completion. 
 #'
 #' @return List containing best pipelines, summary frame and pipeline plots
 #' @export
@@ -25,7 +26,7 @@
 #' @author 
 #' Xander Horn
 explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluster.memory = NULL, max.runtime.mins = 10, 
-                              reduce.dimensionality = TRUE, max.levels = 100, progress = TRUE, seed = 1){
+                              reduce.dimensionality = TRUE, max.levels = 100, progress = TRUE, seed = 1, cluster.shutdown = FALSE){
 
   library(caret)
   library(h2o)
@@ -301,7 +302,9 @@ explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluste
                       xlab = "Nr pipelines", 
                       ylab = paste0("Validation set performance: ", metric))
   
-  quiet(h2o.shutdown(prompt = FALSE))
+  if(cluster.shutdown == TRUE){
+    quiet(h2o.shutdown(prompt = F))
+  }
   cat(paste0("lazy | Exlpored ", nrow(c)," out of ",nrow(tmp)," pipelines \n"))
   
   out <- list()

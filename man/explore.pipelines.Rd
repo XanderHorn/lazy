@@ -7,7 +7,7 @@
 explore.pipelines(train, valid, id.feats = NULL, x = NULL, y,
   cluster.memory = NULL, max.runtime.mins = 10,
   reduce.dimensionality = TRUE, max.levels = 100, progress = TRUE,
-  seed = 1)
+  seed = 1, cluster.shutdown = FALSE)
 }
 \arguments{
 \item{train}{[required | data.frame] Traning set before any feature engineering or data cleaning is done.}
@@ -31,6 +31,8 @@ explore.pipelines(train, valid, id.feats = NULL, x = NULL, y,
 \item{progress}{[optional | logical | default=TRUE] Display a progress bar.}
 
 \item{seed}{[optional | integer | default=1] Random number seed for reproducable results.}
+
+\item{cluster.shutdown}{[optional | integer | default=TRUE] Shutdown h2o cluster after completion.}
 }
 \value{
 List containing best pipelines, summary frame and pipeline plots
