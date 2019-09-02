@@ -30,9 +30,10 @@ map.categorical.encoding <- function(data, x, y = NULL, max.levels = 10, min.per
   }
 
   set.seed(seed)
-
-  data <- as.data.frame(data)
-  data <- data[,c(x,y)]
+  data <- as.data.frame(data[,c(x,y)])
+  if(length(x) == 1){
+    names(data) <- x
+  }
 
   if(class(data[,y]) %in% c("factor","character")){
     data[,y] <- as.numeric(as.factor(data[,y])) - 1
