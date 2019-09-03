@@ -57,6 +57,13 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   remove <- setdiff(remove, c(id.feats, y, time.partition.feature))
   train <- train[,setdiff(names(train), remove)]
   
+  if(is.null(time.partition.feature) == FALSE){
+    if(class(train[, time.partition.feature]) %in% c("character","factor")){
+      train[, time.partition.feature] <- as.Date(train[, time.partition.feature])
+    }
+    train <- train[order(train[,time.partition.feature]), ]
+  }
+  
   if(is.null(test)){
     if(is.null(time.partition.feature) == TRUE){
       ind <- caret::createDataPartition(y = train[,y], p = test.split, list = FALSE)
