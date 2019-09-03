@@ -52,6 +52,8 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   options(scipen = 999)
   t.row <- nrow(train)
   
+  train <- quick.format(train)
+  
   exp <- describe(data = train, progress = F)
   remove <- as.character(exp[which(exp$all.na == 1 | exp$constant == 1 | exp$duplicate == 1), "feature"])
   remove <- setdiff(remove, c(id.feats, y, time.partition.feature))
