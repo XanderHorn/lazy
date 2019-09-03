@@ -121,6 +121,10 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
     pipeline <- res$best.pipelines$average
     
     info$optimized.pipeline <- paste0(nrow(res$summary)," out of 1536 possible pipelines were explored and the best performing pipeline was selected to be used for further modelling. A total of ", pipeline.search.max.runtime.mins," minutes were used to explore various pipelines.") 
+    if(nrow(subset(res$summary, is.na(res$summary$mean.performance) == TRUE)) == nrow(res$summary)){
+      stop("No pipeline explored given time limit provided to function, increase pipeline.search.max.runtime.mins to solve this")
+    }
+    
   } 
   
   cat("lazy | Applying pipeline to data \n")
