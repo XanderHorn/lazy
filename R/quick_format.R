@@ -23,9 +23,10 @@ quick.format <- function(data){
       data[, i] <- as.character(data[, i])
     }
 
-    if(class(data[ ,i]) == "logical"){
+    if(class(data[ ,i]) %in% c("logical","integer64")){
       data[, i] <- as.numeric(data[, i])
     }
+    
   }
 
   return(data)
