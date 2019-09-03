@@ -52,8 +52,6 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   options(scipen = 999)
   t.row <- nrow(train)
   
-  train <- quick.format(train)
-  
   exp <- describe(data = train, progress = F)
   remove <- as.character(exp[which(exp$all.na == 1 | exp$constant == 1 | exp$duplicate == 1), "feature"])
   remove <- setdiff(remove, c(id.feats, y, time.partition.feature))
@@ -87,6 +85,10 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   } else {
     valid <- valid[,setdiff(names(valid), remove)]
   }
+  
+  train <- quick.format(train)
+  valid <- quick.format(valid)
+  test <- quick.format(test)
   
   if(is.null(time.partition.feature) == FALSE){
     info$data.partitioning <- paste0("Data was partiioned for validation and testing, taking into consideration the time component present in the data. Simply put, all models are evaulated using future data instead of randomly assinging unseen data for evaluation.")
