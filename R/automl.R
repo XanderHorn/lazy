@@ -268,8 +268,10 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   out$modelling.development.info <- info
   out$data.leak <- leak
   out$feature.importance <- imp
-  out$pipeline.search$summary <- res$summary
-  out$pipeline.search$plots <- res$plots
+  if(is.null(pipeline) == TRUE){
+    out$pipeline.search$summary <- res$summary
+    out$pipeline.search$plots <- res$plots
+  }
   out$pipeline <- pp$pipeline
   out$mapping.list <- pp$mapping.list
   out$models <- models
