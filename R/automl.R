@@ -200,6 +200,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
     models <- setdiff(models, "XGBoost")
   }
   
+  out <- list()
   if(return.data == TRUE){
     out$data$train <- train
     out$data$valid <- valid
@@ -226,7 +227,6 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   model_ids <- as.data.frame(aml@leaderboard$model_id)[,1]
   model_ids <- model_ids[1:15]
   model_ids <- model_ids[!is.na(model_ids)]
-  out <- list()
   models <- list()
   
   cat("lazy | Evaluating models \n")
