@@ -29,6 +29,7 @@ pre.process <- function(data, x = NULL, y = NULL, id.feats = NULL, pipeline, map
   
   set.seed(pipeline$settings$seed)
   data <- as.data.frame(data)
+  data <- quick.format(data)
 
   if(is.null(x) == TRUE){
     x <- names(data)

@@ -56,6 +56,8 @@ explore.pipelines <- function(train, valid, id.feats = NULL, x = NULL, y, cluste
     x <- names(train)
   }
   
+  train <- quick.format(train)
+  valid <- quick.format(valid)
   x <- setdiff(x, c(y,id.feats))
   
   if(reduce.dimensionality == TRUE & ncol(train) > 80){

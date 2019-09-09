@@ -139,8 +139,8 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   cat("lazy | Applying pipeline to data \n")
   pp <- pre.process(data = train, x = x, y = y, id.feats = c(id.feats,time.partition.feature), pipeline = pipeline, verbose = FALSE)
   train <- pp$data
-  valid <- pre.process(data = valid, pipeline = pp$pipeline, mapping.list = pp$mapping.list, verbose = FALSE)
-  test <- pre.process(data = test, pipeline = pp$pipeline, mapping.list = pp$mapping.list, verbose = FALSE)
+  valid <- pre.process(data = valid,id.feats = c(id.feats,time.partition.feature), pipeline = pp$pipeline, mapping.list = pp$mapping.list, verbose = FALSE)
+  test <- pre.process(data = test,id.feats = c(id.feats,time.partition.feature), pipeline = pp$pipeline, mapping.list = pp$mapping.list, verbose = FALSE)
   
   if(is.null(time.partition.feature) == FALSE){
     general.info <- data.frame(train.obs = nrow(train),
@@ -185,8 +185,8 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   fi <- imp$importance.table
   x <- setdiff(as.character(fi[which(fi$mean.importance > min.feature.importance), "feature"]), c(id.feats,time.partition.feature,y))
 
-  valid <- valid[,names(train)]
-  test <- test[,names(train)]
+  valid <- valid[,c(x,y,time.partition.feature,id.feats)]
+  test <- test[,c(x,y,time.partition.feature,id.feats)]
   
   if(is.null(cluster.memory) == FALSE){
     quiet(h2o::h2o.init(max_mem_size = paste0(cluster.memory,"G")))
