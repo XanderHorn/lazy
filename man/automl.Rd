@@ -13,7 +13,7 @@ automl(train, y, valid = NULL, test = NULL, x = NULL,
   "StackedEnsemble"), cv.folds = 0, max.levels = 100,
   data.leakage.cutoff = 0.65, cluster.memory = NULL,
   min.feature.importance = 0.1, seed = 1, output.path = NULL,
-  pipeline = NULL, return.data = FALSE)
+  pipeline = NULL, return.data = TRUE)
 }
 \arguments{
 \item{train}{[required | data.frame] Traning set, if no test and validation sets are provided it is considered as the full set and test and validation sets will be created.}
@@ -57,6 +57,10 @@ automl(train, y, valid = NULL, test = NULL, x = NULL,
 \item{seed}{[optional | integer | default=NULL] Random seed value for reproducable results.}
 
 \item{output.path}{[optional | character | default=NULL] Path where function output will save to. Default of NULL, which will save to the current working directory.}
+
+\item{pipeline}{[optional | list | default=NULL] A pre-defined pipeline to train models on.}
+
+\item{return.data}{[optional | logical | default=TRUE] Return the pre-processed train, validation and test sets.}
 }
 \value{
 List of objects and output generated to a specific path

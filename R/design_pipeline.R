@@ -32,10 +32,10 @@
 #' @param numeric.interaction.feats [optional | numeric | default=10] The number of top important numerical features to be used when creating numerical interaction features.
 #' @param freq.encode [optional | logical | default=FALSE] Should frequency features be created which is simply a count of each unique value present per feature. These are created before any feature engineering is done.
 #' @param seed [optional | numeric | default=1] Random seed for reproducable results.
-#'
 #' @return List containing pipeline information including settings and data pre-processing documentation
 #' @export
 #' @examples
+#' pl <- design.pipeline(kmeans.features = TRUE)
 #' @author 
 #' Xander Horn
 design.pipeline <- function(pipeline.name = NULL,

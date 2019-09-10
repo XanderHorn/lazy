@@ -87,6 +87,9 @@ List containing pipeline information including settings and data pre-processing 
 \description{
 Designs and outputs a pipeline stating which steps will be taken to pre-process data. The output of this function will return the settings specified when designing the pipeline as well as documentation on how the data will be treated based on the specified settings.
 }
+\examples{
+pl <- design.pipeline(kmeans.features = TRUE)
+}
 \author{
 Xander Horn
 }

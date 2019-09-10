@@ -23,7 +23,10 @@
 #' @param cluster.memory [optional | integer | default=NULL] The maxmimum memory allocated to the h2o cluster in gigabytes. Default of NULL which will auto assign memory.
 #' @param min.feature.importance [optional | numeric | default=0.1] The minimum scaled feature importance features need to have before they are removed from the feature space.
 #' @param seed [optional | integer | default=NULL] Random seed value for reproducable results.
+#' @param pipeline [optional | list | default=NULL] A pre-defined pipeline to train models on.
+#' @param return.data [optional | logical | default=TRUE] Return the pre-processed train, validation and test sets.
 #' @param output.path [optional | character | default=NULL] Path where function output will save to. Default of NULL, which will save to the current working directory. 
+#'
 #' @return List of objects and output generated to a specific path
 #' @export
 #' @examples
@@ -35,7 +38,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
                    optimization.metric = "AUTO", valid.split = 0.1, test.split = 0.2, pipeline.search.max.runtime.mins = 30, 
                    automl.search.max.runtime.mins = 30, balance.classes = FALSE, models = c("DRF","GLM","GBM","XGBoost","DeepLearning","StackedEnsemble"),
                    cv.folds = 0, max.levels = 100, data.leakage.cutoff = 0.65, cluster.memory = NULL, min.feature.importance = 0.1, seed = 1,
-                   output.path = NULL, pipeline = NULL, return.data = FALSE){
+                   output.path = NULL, pipeline = NULL, return.data = TRUE){
   
   library(caret)
   library(h2o)
