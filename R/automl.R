@@ -107,7 +107,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   }
   
   cat("lazy | Checking for data leakage features \n")
-  leak <- data.leak(train = train, test = valid, id.feats = c(id.feats,time.partition.feature), seed = 1, progress = FALSE)
+  leak <- data.leak(train = train, test = valid, id.feats = c(id.feats,time.partition.feature), seed = seed, progress = FALSE)
   remove <- as.character(leak[which(leak$auc > 0.65), "feature"])
   remove <- setdiff(remove, c(id.feats,time.partition.feature))
   if(length(remove) > 0 & length(remove) != ncol(train)){
@@ -121,7 +121,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   info$data.leakage <- paste0("Data leakage checks were performed to determine if any features causes leakage between datasets. Pruned decision trees were fitted to each feature and then used to predict the training and testing sets. If any feature had an AUC (area under the curve) value for predicting the test set above ",data.leakage.cutoff," the features were flagged and removed.")
   
   cat("lazy | Removing features with low importance contribution \n")
-  imp <- feature.importance(data = train, y = y, x = x, verbose = F,cluster.shutdown = F)$importance.table
+  imp <- feature.importance(data = train, y = y, x = x, verbose = F,cluster.shutdown = F, seed = seed)$importance.table
   x <- setdiff(as.character(imp[which(imp$mean.importance > min.feature.importance), "feature"]), c(id.feats,time.partition.feature))
   
   info$feature.importance <- paste0("To reduce dimensionality and noisy features, only features with a scaled importance value greater than ", min.feature.importance * 100, "% were kept for further pre-processing. Feature importance were calculated by calulating importance for a random forest, lasso regression and light gbm model, whereafter the average importance is calculated and used.") 
@@ -184,7 +184,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   }
   
   x <- setdiff(names(train), c(id.feats, y, time.partition.feature))
-  imp <- feature.importance(data = train, y = y, x = x, verbose = F,cluster.shutdown = F)
+  imp <- feature.importance(data = train, y = y, x = x, verbose = F,cluster.shutdown = F, seed = seed)
   fi <- imp$importance.table
   x <- setdiff(as.character(fi[which(fi$mean.importance > min.feature.importance), "feature"]), c(id.feats,time.partition.feature,y))
 
