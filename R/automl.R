@@ -1,7 +1,7 @@
 #' Automated machine learning
 #' 
 #' Automated machine learning with automated feature engineering via pipeline exploration optimization. Utilises h2o.automl as the modelling engine. Duplicate observations are removed based on id features provided to the function. Time sensitive partitioning is also performed if a time sensitive indicator feature is provided. The function is bound by time for both optimization of pipelines as well as model optimization.
-#' Due to the function using the h2o library, the top 15 models are saved locally in order to load the models into the cluster at a later stage and perform scoring.
+#' Due to the function using the h2o library, models are saved locally  to enable loading the models into the h2o cluster at a later stage and perform scoring.
 #' 
 #' @param train [required | data.frame] Traning set, if no test and validation sets are provided it is considered as the full set and test and validation sets will be created.
 #' @param y [optional | character] The name of the target feature contained in the training and validation sets.
@@ -228,7 +228,6 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   }
   
   model_ids <- as.data.frame(aml@leaderboard$model_id)[,1]
-  model_ids <- model_ids[1:15]
   model_ids <- model_ids[!is.na(model_ids)]
   models <- list()
   
