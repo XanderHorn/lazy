@@ -278,20 +278,20 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   names(models) <- model_ids
   perf$train.valid.overfit.value <- abs(perf$train - perf$valid)
   
-  pipeline$settings$ml.time.partitioning <- info$time.partitioning
-  pipeline$settings$ml.data.leakage <- info$data.leakage
-  pipeline$settings$ml.feature.importance <- info$ml.feature.importance
-  pipeline$settings$ml.min.feature.importance <- info$ml.min.feature.importance
-  pipeline$settings$ml.balance.classes <- info$ml.balances.classes
-  pipeline$settings$ml.cv.folds <- cv.folds
-  pipeline$settings$ml.models <- models
-  pipeline$settings$ml.model.search.time <- automl.search.max.runtime.mins
+  pp$pipeline$settings$ml.time.partitioning <- info$time.partitioning
+  pp$pipeline$settings$ml.data.leakage <- info$data.leakage
+  pp$pipeline$settings$ml.feature.importance <- info$ml.feature.importance
+  pp$pipeline$settings$ml.min.feature.importance <- info$ml.min.feature.importance
+  pp$pipeline$settings$ml.balance.classes <- info$ml.balances.classes
+  pp$pipeline$settings$ml.cv.folds <- cv.folds
+  pp$pipeline$settings$ml.models <- models
+  pp$pipeline$settings$ml.model.search.time <- automl.search.max.runtime.mins
   if(is.null(pipeline) == TRUE){
-    pipeline$settings$ml.pipeline.search <- TRUE
+    pp$pipeline$settings$ml.pipeline.search <- TRUE
   } else {
-    pipeline$settings$ml.pipeline.search <- FALSE
+    pp$pipeline$settings$ml.pipeline.search <- FALSE
   }
-  pipeline$settings$ml.pipeline.search.time <- pipeline.search.max.runtime.mins
+  pp$pipeline$settings$ml.pipeline.search.time <- pipeline.search.max.runtime.mins
   
   
   
