@@ -101,30 +101,31 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   test <- quick.format(test)
   
   if(is.null(time.partition.feature) == FALSE){
-    info$data.partitioning <- paste0("Data was partiioned for validation and testing, taking into consideration the time component present in the data. Simply put, all models are evaulated using future data instead of randomly assinging unseen data for evaluation.")
+    info$time.partitioning <- TRUE
   } else {
-    info$data.partitioning <- paste0("Data was partitioned by using random stratified sampling based on the target feature to create validation and testing sets for model evaluation.")
+    info$time.partitioning <- FALSE
   }
   
   cat("lazy | Checking for data leakage features \n")
   leak <- data.leak(train = train, test = valid, id.feats = c(id.feats,time.partition.feature), seed = seed, progress = FALSE)
-  remove <- as.character(leak[which(leak$auc > 0.65), "feature"])
+  remove <- as.character(leak[which(leak$auc > data.leakage.cutoff), "feature"])
   remove <- setdiff(remove, c(id.feats,time.partition.feature))
   if(length(remove) > 0 & length(remove) != ncol(train)){
     train <- train[, setdiff(names(train), remove)]
     valid <- valid[, setdiff(names(valid), remove)]
+    test <- test[, setdiff(names(test), remove)]
     dl <- TRUE
   } else {
     dl <- FALSE
   }
   
-  info$data.leakage <- paste0("Data leakage checks were performed to determine if any features causes leakage between datasets. Pruned decision trees were fitted to each feature and then used to predict the training and testing sets. If any feature had an AUC (area under the curve) value for predicting the test set above ",data.leakage.cutoff," the features were flagged and removed.")
+  
+  info$data.leakage <- TRUE
+  info$data.leakage.cutoff <- 0.65
   
   cat("lazy | Removing features with low importance contribution \n")
   imp <- feature.importance(data = train, y = y, x = x, verbose = F,cluster.shutdown = F, seed = seed)$importance.table
   x <- setdiff(as.character(imp[which(imp$mean.importance > min.feature.importance), "feature"]), c(id.feats,time.partition.feature))
-  
-  info$feature.importance <- paste0("To reduce dimensionality and noisy features, only features with a scaled importance value greater than ", min.feature.importance * 100, "% were kept for further pre-processing. Feature importance were calculated by calulating importance for a random forest, lasso regression and light gbm model, whereafter the average importance is calculated and used.") 
   
   if(is.null(pipeline) == TRUE){
     res <- explore.pipelines(train = train, valid = valid, id.feats = c(id.feats,time.partition.feature), x = x, y= y, 
@@ -132,18 +133,30 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
     
     pipeline <- res$best.pipelines$average
     
-    info$optimized.pipeline <- paste0(nrow(res$summary)," out of 1536 possible pipelines were explored and the best performing pipeline was selected to be used for further modelling. A total of ", pipeline.search.max.runtime.mins," minutes were used to explore various pipelines.") 
+    info$pipelines.explored <- nrow(res$summary)
+    
     if(nrow(subset(res$summary, is.na(res$summary$mean.performance) == TRUE)) == nrow(res$summary)){
       stop("No pipeline explored given time limit provided to function, increase pipeline.search.max.runtime.mins to solve this")
     }
     
-  } 
+  } else {
+    info$pipelines.explored <- NULL
+  }
   
   cat("lazy | Applying pipeline to data \n")
   pp <- pre.process(data = train, x = x, y = y, id.feats = c(id.feats,time.partition.feature), pipeline = pipeline, verbose = FALSE)
   train <- pp$data
   valid <- pre.process(data = valid,id.feats = c(id.feats,time.partition.feature), pipeline = pp$pipeline, mapping.list = pp$mapping.list, verbose = FALSE)
   test <- pre.process(data = test,id.feats = c(id.feats,time.partition.feature), pipeline = pp$pipeline, mapping.list = pp$mapping.list, verbose = FALSE)
+  
+  if(min.feature.importance > 0){
+    info$ml.feature.importance <- TRUE
+    info$ml.min.feature.importance <- min.feature.importance
+  } else {
+    info$ml.feature.importance <- FALSE
+    info$ml.min.feature.importance <- 0
+  }
+  
   
   if(is.null(time.partition.feature) == FALSE){
     general.info <- data.frame(train.obs = nrow(train),
@@ -222,9 +235,9 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
                     include_algos = models,stopping_metric = optimization.metric)
   
   if(balance.classes == TRUE){
-    info$optimized.models <- paste0("H2O automl were used as the modelling engine to tune and find the best performing model. A total of ", automl.search.max.runtime.mins," minutes were used to find the best performing model. Due to class imbalance in the target feature, classes were balanced on the training set before fitting models to the training set. Probabilities are re-scaled when predicting to arrive at an accurate probability estimate, for more information on this, please visit http://docs.h2o.ai/h2o/latest-stable/h2o-docs/data-science/algo-params/balance_classes.html#description.")
+    info$ml.balances.classes <- TRUE
   } else {
-    info$optimized.models <- paste0("H2O automl were used as the modelling engine to tune and find the best performing model. A total of ", automl.search.max.runtime.mins," minutes were used to find the best performing model.")
+    info$ml.balances.classes <- FALSE
   }
   
   model_ids <- as.data.frame(aml@leaderboard$model_id)[,1]
@@ -264,6 +277,23 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   }
   names(models) <- model_ids
   perf$train.valid.overfit.value <- abs(perf$train - perf$valid)
+  
+  pipeline$settings$ml.time.partitioning <- info$time.partitioning
+  pipeline$settings$ml.data.leakage <- info$data.leakage
+  pipeline$settings$ml.feature.importance <- info$ml.feature.importance
+  pipeline$settings$ml.min.feature.importance <- info$ml.min.feature.importance
+  pipeline$settings$ml.balance.classes <- info$ml.balances.classes
+  pipeline$settings$ml.cv.folds <- cv.folds
+  pipeline$settings$ml.models <- models
+  pipeline$settings$ml.model.search.time <- automl.search.max.runtime.mins
+  if(is.null(pipeline) == TRUE){
+    pipeline$settings$ml.pipeline.search <- TRUE
+  } else {
+    pipeline$settings$ml.pipeline.search <- FALSE
+  }
+  pipeline$settings$ml.pipeline.search.time <- pipeline.search.max.runtime.mins
+  
+  
   
   out$leaderboard <- perf
   out$partitions <- general.info
