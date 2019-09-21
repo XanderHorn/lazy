@@ -4,8 +4,8 @@
 #'
 #' @param data [required | data.frame] New data to produce predictions for.
 #' @param model.object [required | h2o] The h2o model object.
-#' @param pipeline [required | list] List object returned either by automl or preprocess.
-#' @param mapping.list [required | list] List object returned either by automl or preprocess.
+#' @param pipeline [required | list | default=NULL] List object returned either by automl or preprocess, if left as NULL, it is assumed that a prediction is required on an already pre-processed dataset.
+#' @param mapping.list [required | list | default=NULL] List object returned either by automl or preprocess, if left as NULL, it is assumed that a prediction is required on an already pre-processed dataset..
 #' @return A data.frame object with predictions.
 #' @export
 #' @examples
@@ -15,18 +15,31 @@
 #' @author 
 #' Xander Horn
 lazy.predict <- function(data, model.object, pipeline, mapping.list){
+
+  if(missing(data)){
+    stop("No data set to predict on provided to function")
+  }
   
+  if(missing(model.object)){
+    stop("No h2o model object provided to function")
+  }
+
   quiet <- function(x) { 
     sink(tempfile()) 
     on.exit(sink()) 
     invisible(force(x)) 
   } 
   
+  quiet(h2o.init())
+
   data <- quick.format(as.data.frame(data))
   
-  data <- as.h2o(pre.process(data = data, pipeline = pipeline, mapping.list = mapping.list, verbose = F))
+  if(is.null(pipeline) == FALSE & is.null(mapping.list) == FALSE){
+    data <- quiet(as.h2o(pre.process(data = data, pipeline = pipeline, mapping.list = mapping.list, verbose = F)))
+  } else {
+    data <- quiet(as.h2o(data))
+  }
   
-  quiet(h2o.init())
   preds <- as.data.frame(h2o.predict(model.object, newdata = data))
   return(preds)
 }
