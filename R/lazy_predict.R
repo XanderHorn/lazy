@@ -14,7 +14,7 @@
 #' preds <- lazy.predict(data=iris, model.object=res$models[1], pipeline=res$pipeline, mapping.list=res$mapping.list)
 #' @author 
 #' Xander Horn
-lazy.predict <- function(data, model.object, pipeline, mapping.list){
+lazy.predict <- function(data, model.object, pipeline = NULL, mapping.list = NULL){
 
   if(missing(data)){
     stop("No data set to predict on provided to function")
