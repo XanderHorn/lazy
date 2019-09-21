@@ -93,7 +93,8 @@ make.pipeline.grid <- function(text.features = c(FALSE,TRUE),
                    transform.cutoff = transform.cutoff,
                    numeric.interactions = numeric.interactions,
                    numeric.interaction.feats = numeric.interaction.feats,
-                   freq.encode = freq.encode)
+                   freq.encode = freq.encode,
+                   stringsAsFactors = FALSE)
   
   return(g)
 }
