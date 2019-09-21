@@ -4,7 +4,7 @@
 \alias{lazy.predict}
 \title{Preprocess and predict wrapper}
 \usage{
-lazy.predict(data, model.object, pipeline, mapping.list)
+lazy.predict(data, model.object, pipeline = NULL, mapping.list = NULL)
 }
 \arguments{
 \item{data}{[required | data.frame] New data to produce predictions for.}
