@@ -11,9 +11,9 @@ lazy.predict(data, model.object, pipeline, mapping.list)
 
 \item{model.object}{[required | h2o] The h2o model object.}
 
-\item{pipeline}{[required | list] List object returned either by automl or preprocess.}
+\item{pipeline}{[required | list | default=NULL] List object returned either by automl or preprocess, if left as NULL, it is assumed that a prediction is required on an already pre-processed dataset.}
 
-\item{mapping.list}{[required | list] List object returned either by automl or preprocess.}
+\item{mapping.list}{[required | list | default=NULL] List object returned either by automl or preprocess, if left as NULL, it is assumed that a prediction is required on an already pre-processed dataset..}
 }
 \value{
 A data.frame object with predictions.
