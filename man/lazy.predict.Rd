@@ -9,7 +9,7 @@ lazy.predict(data, model.object, pipeline = NULL, mapping.list = NULL)
 \arguments{
 \item{data}{[required | data.frame] New data to produce predictions for.}
 
-\item{model.object}{[required | h2o] The h2o model object.}
+\item{model.object}{[required | h2o] An h2o model object.}
 
 \item{pipeline}{[required | list | default=NULL] List object returned either by automl or preprocess, if left as NULL, it is assumed that a prediction is required on an already pre-processed dataset.}
 

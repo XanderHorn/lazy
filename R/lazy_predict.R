@@ -3,7 +3,7 @@
 #' Pre-processes data and predicts. Function to be used in scoring environment. For classification problems the result will contain both the predicted class and probabilities.
 #'
 #' @param data [required | data.frame] New data to produce predictions for.
-#' @param model.object [required | h2o] The h2o model object.
+#' @param model.object [required | h2o] An h2o model object.
 #' @param pipeline [required | list | default=NULL] List object returned either by automl or preprocess, if left as NULL, it is assumed that a prediction is required on an already pre-processed dataset.
 #' @param mapping.list [required | list | default=NULL] List object returned either by automl or preprocess, if left as NULL, it is assumed that a prediction is required on an already pre-processed dataset..
 #' @return A data.frame object with predictions.
