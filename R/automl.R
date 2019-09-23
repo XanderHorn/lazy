@@ -123,12 +123,12 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   info$data.leakage <- TRUE
   info$data.leakage.cutoff <- 0.65
   
-  cat("lazy | Removing features with low importance contribution \n")
-  imp <- feature.importance(data = train, y = y, x = x, verbose = F,cluster.shutdown = F, seed = seed)$importance.table
-  x <- setdiff(as.character(imp[which(imp$mean.importance > min.feature.importance), "feature"]), c(id.feats,time.partition.feature))
+  #cat("lazy | Removing features with low importance contribution \n")
+  #imp <- feature.importance(data = train, y = y, x = x, verbose = F,cluster.shutdown = F, seed = seed)$importance.table
+  #x <- setdiff(as.character(imp[which(imp$mean.importance > min.feature.importance), "feature"]), c(id.feats,time.partition.feature))
   
   if(is.null(pipeline) == TRUE){
-    res <- explore.pipelines(train = train, valid = valid, id.feats = c(id.feats,time.partition.feature), x = x, y= y, 
+    res <- explore.pipelines(train = train, valid = valid, id.feats = c(id.feats,time.partition.feature), y= y, 
                              cluster.memory = cluster.memory, max.runtime.mins = pipeline.search.max.runtime.mins,seed = seed)
     
     pipeline <- res$best.pipelines$average
