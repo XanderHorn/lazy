@@ -264,6 +264,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
     perf[i, "test"] <- t3@metrics[[as.character(perf[i,"metric"])]]
   }
 
+  cat("lazy | Exporting objects \n")
   if(is.null(output.path) == TRUE){
     output.path <- getwd()
   }
