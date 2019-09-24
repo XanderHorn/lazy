@@ -312,7 +312,7 @@ automl <- function(train, y, valid = NULL, test = NULL, x = NULL, id.feats = NUL
   out$pipeline <- pp$pipeline
   out$mapping.list <- pp$mapping.list
   out$models <- models
-  out$documentation <- document(pp$pipeline)
+  out$documentation <- lazy::document(pp$pipeline)
 
   saveRDS(out, paste0(output.path,"/lazy_automl_output.RDS"))
   cat(paste0("lazy | Output generated to: ", output.path, " \n"))
