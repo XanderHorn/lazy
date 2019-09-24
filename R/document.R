@@ -1,4 +1,15 @@
-
+#' Dynamic documentation for pipeline settings
+#'
+#' Creates dynamic documentation for pipelines.
+#'
+#' @param pipeline [requied | list] A pipeline list object either returned from automl or design.pipeline.
+#' @return List containing documentation
+#' @export
+#' @examples
+#' p <- design.pipeline()
+#' doc <- document(p)
+#' @author
+#' Xander Horn
 document <- function(pipeline){
 
   doc <- list()
