@@ -141,7 +141,7 @@ lazy.plot <- function(data, x = NULL, y = NULL, type = "histogram", transparency
       geom_bar(aes(y = (..count..)/sum(..count..)), position = "fill", alpha = transparency) + 
       scale_y_continuous(labels = scales::percent) + 
       labs(x = y, y = "Percentage") + 
-      guides(fill = guide_legend(title = y)) + 
+      guides(fill = guide_legend(title = x)) + 
       scale_fill_manual(values = theme) + 
       theme_light()
   }
